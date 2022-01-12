@@ -9,6 +9,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.testng.annotations.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.*;
@@ -16,14 +18,21 @@ import static org.assertj.core.api.Assertions.*;
 public class TrelloRestApiTest {
 
     CloseableHttpClient client;
+    List<String> idListOfCreatedBoards;
 
     @BeforeClass
     public void init(){
         client = HttpClientBuilder.create().build();
+        idListOfCreatedBoards = new ArrayList<>();
     }
 
     @AfterClass
     public void end() throws IOException {
+
+        for(String id : idListOfCreatedBoards){
+            HttpDelete httpDelete = new HttpDelete(String.format("https://trello.com/1/boards/%s?key&token", id));
+            client.execute(httpDelete);
+        }
         client.close();
     }
 
@@ -34,6 +43,7 @@ public class TrelloRestApiTest {
         CloseableHttpResponse response = client.execute(httpPost);
         HttpEntity entity = response.getEntity();
         ObjectNode node = new ObjectMapper().readValue(entity.getContent(),ObjectNode.class);
+        idListOfCreatedBoards.add(node.get("id").asText());
 
         assertThat(response.getStatusLine().getStatusCode()).isEqualTo(HttpStatus.SC_OK);
         assertThat(node).isNotNull();
@@ -46,6 +56,7 @@ public class TrelloRestApiTest {
         CloseableHttpResponse response = client.execute(httpPost);
         HttpEntity entity = response.getEntity();
         ObjectNode node = new ObjectMapper().readValue(entity.getContent(),ObjectNode.class);
+        idListOfCreatedBoards.add(node.get("id").asText());
         String id = node.get("id").asText();
         HttpGet httpGet = new HttpGet(String.format("https://trello.com/1/boards/%s?key&token", id));
         CloseableHttpResponse responseGet = client.execute(httpGet);
@@ -64,6 +75,7 @@ public class TrelloRestApiTest {
         CloseableHttpResponse response = client.execute(httpPost);
         HttpEntity entity = response.getEntity();
         ObjectNode node = new ObjectMapper().readValue(entity.getContent(), ObjectNode.class);
+        idListOfCreatedBoards.add(node.get("id").asText());
         String id = node.get("id").asText();
         HttpPut httpPut = new HttpPut(String.format("https://trello.com/1/boards/%s?key&token&name=Changed", id));
         CloseableHttpResponse responsePut = client.execute(httpPut);
