@@ -29,6 +29,7 @@ public class TrelloRestApiTest {
     @AfterClass
     public void end() throws IOException {
 
+        // TODO(mpieron): read key and token from file or some utility class
         for(String id : idListOfCreatedBoards){
             HttpDelete httpDelete = new HttpDelete(String.format("https://trello.com/1/boards/%s?key&token", id));
             client.execute(httpDelete);
@@ -39,8 +40,10 @@ public class TrelloRestApiTest {
 
     @Test
     public void creatingNewBoardTest() throws IOException {
+        //TODO(mapieron): keep the base URL of Trello API in a variable
         HttpPost httpPost = new HttpPost("https://trello.com/1/boards/?key&token&name=New");
         CloseableHttpResponse response = client.execute(httpPost);
+
         HttpEntity entity = response.getEntity();
         ObjectNode node = new ObjectMapper().readValue(entity.getContent(),ObjectNode.class);
         idListOfCreatedBoards.add(node.get("id").asText());
@@ -54,12 +57,15 @@ public class TrelloRestApiTest {
     public void gettingBoardByIDTest() throws IOException {
         HttpPost httpPost = new HttpPost("https://trello.com/1/boards/?key&token&name=New");
         CloseableHttpResponse response = client.execute(httpPost);
+
         HttpEntity entity = response.getEntity();
         ObjectNode node = new ObjectMapper().readValue(entity.getContent(),ObjectNode.class);
         idListOfCreatedBoards.add(node.get("id").asText());
+
         String id = node.get("id").asText();
         HttpGet httpGet = new HttpGet(String.format("https://trello.com/1/boards/%s?key&token", id));
         CloseableHttpResponse responseGet = client.execute(httpGet);
+
         HttpEntity entityGet = responseGet.getEntity();
         ObjectNode nodeGet = new ObjectMapper().readValue(entityGet.getContent(),ObjectNode.class);
 
@@ -73,12 +79,15 @@ public class TrelloRestApiTest {
     public void updateBoard() throws IOException {
         HttpPost httpPost = new HttpPost("https://trello.com/1/boards/?key&token&name=New");
         CloseableHttpResponse response = client.execute(httpPost);
+
         HttpEntity entity = response.getEntity();
         ObjectNode node = new ObjectMapper().readValue(entity.getContent(), ObjectNode.class);
         idListOfCreatedBoards.add(node.get("id").asText());
+
         String id = node.get("id").asText();
         HttpPut httpPut = new HttpPut(String.format("https://trello.com/1/boards/%s?key&token&name=Changed", id));
         CloseableHttpResponse responsePut = client.execute(httpPut);
+
         HttpEntity entityPut = responsePut.getEntity();
         ObjectNode nodePut= new ObjectMapper().readValue(entityPut.getContent(),ObjectNode.class);
 
@@ -92,12 +101,15 @@ public class TrelloRestApiTest {
     public void deleteBoard() throws IOException {
         HttpPost httpPost = new HttpPost("https://trello.com/1/boards/?key&token&name=New");
         CloseableHttpResponse response = client.execute(httpPost);
+
         HttpEntity entity = response.getEntity();
         ObjectNode node = new ObjectMapper().readValue(entity.getContent(), ObjectNode.class);
+
         String id = node.get("id").asText();
         HttpDelete httpDelete = new HttpDelete(String.format("https://trello.com/1/boards/%s?key&token", id));
         CloseableHttpResponse responseDelete = client.execute(httpDelete);
 
+        //TODO(mpieron): try to GET the deleted board and assert that status code is 400
         assertEquals(responseDelete.getStatusLine().getStatusCode(), HttpStatus.SC_OK);
     }
 }
