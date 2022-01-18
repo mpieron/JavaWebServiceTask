@@ -16,7 +16,9 @@ import static org.testng.Assert.assertEquals;
 
 public class TrelloRestApiTest {
 
-    String keyAndToken;
+    String key;
+    String token;
+    String path;
     List<String> idListOfCreatedBoards;
 
     @BeforeClass
@@ -24,12 +26,14 @@ public class TrelloRestApiTest {
         idListOfCreatedBoards = new ArrayList<>();
         Properties properties = new Properties();
 
-        baseURI = "https://trello.com/1/boards/";
-        String path = "src/main/resources/trello.properties";
+        baseURI = "https://trello.com";
+        path = "/1/boards/";
+        String pathToFile = "src/main/resources/trello.properties";
 
         try {
-            properties.load(new FileInputStream(path));
-            keyAndToken = String.format("?key=%s&token=%s", properties.getProperty("key"), properties.getProperty("token"));
+            properties.load(new FileInputStream(pathToFile));
+            key = properties.getProperty("key");
+            token = properties.getProperty("token");
         }
         catch (IOException ex){
             ex.printStackTrace();
@@ -39,7 +43,10 @@ public class TrelloRestApiTest {
     @AfterClass
     public void clean(){
         for(String id : idListOfCreatedBoards){
-            delete(id + keyAndToken);
+            given().queryParam("key", key)
+                    .queryParam("token", token)
+                    .when()
+                    .delete(path + id);
         }
     }
 
@@ -52,10 +59,12 @@ public class TrelloRestApiTest {
         boardToCreate.setDesc("This is new board!");
 
         Response response = given().contentType("application/json")
+                .queryParam("key", key)
+                .queryParam("token", token)
                 .body(boardToCreate)
                 .log().body()
                 .when()
-                .post(keyAndToken)
+                .post(path)
                 .then().log().body()
                 .extract().response();
 
@@ -77,9 +86,11 @@ public class TrelloRestApiTest {
         boardToCreate.setDesc("This is new board!");
 
         BoardForTests createdBoard = given().contentType("application/json")
+                .queryParam("key", key)
+                .queryParam("token", token)
                 .body(boardToCreate)
                 .when()
-                .post(keyAndToken)
+                .post(path)
                 .then().log().body()
                 .extract().response()
                 .as(BoardForTests.class);
@@ -87,9 +98,11 @@ public class TrelloRestApiTest {
         String id = createdBoard.getId();
 
         Response response = given().contentType("application/json")
+                .queryParam("key", key)
+                .queryParam("token", token)
                 .body(boardToCreate)
                 .when()
-                .get(id + keyAndToken)
+                .get(path + id)
                 .then().log().body()
                 .extract().response();
 
@@ -109,9 +122,11 @@ public class TrelloRestApiTest {
         boardToCreate.setDesc("This is new board!");
 
         BoardForTests createdBoard = given().contentType("application/json")
+                .queryParam("key", key)
+                .queryParam("token", token)
                 .body(boardToCreate)
                 .when()
-                .post(keyAndToken)
+                .post(path)
                 .then().log().body()
                 .extract().response()
                 .as(BoardForTests.class);
@@ -121,8 +136,10 @@ public class TrelloRestApiTest {
         Response response = given().contentType("application/json")
                 .param("name", "ChangedBoard")
                 .param("desc", "This board has been changed!")
+                .queryParam("key", key)
+                .queryParam("token", token)
                 .when()
-                .put(id + keyAndToken)
+                .put(path + id)
                 .then().log().body()
                 .extract().response();
 
@@ -143,9 +160,11 @@ public class TrelloRestApiTest {
         boardToCreate.setDesc("This is new board!");
 
         BoardForTests createdBoard = given().contentType("application/json")
+                .queryParam("key", key)
+                .queryParam("token", token)
                 .body(boardToCreate)
                 .when()
-                .post(keyAndToken)
+                .post(path)
                 .then().log().body()
                 .extract().response()
                 .as(BoardForTests.class);
@@ -153,18 +172,20 @@ public class TrelloRestApiTest {
         String id = createdBoard.getId();
 
         Response responseDelete = given().contentType("application/json")
+                .queryParam("key", key)
+                .queryParam("token", token)
                 .when()
-                .delete(id + keyAndToken)
+                .delete(path + id)
                 .then().log().body()
                 .extract().response();
 
         Response responseGet = given().contentType("application/json")
+                .queryParam("key", key)
+                .queryParam("token", token)
                 .when()
-                .get(id + keyAndToken)
+                .get(path + id)
                 .then().log().body()
                 .extract().response();
-
-        BoardForTests deletedBoard = responseDelete.as(BoardForTests.class);
 
         assertEquals(responseDelete.getStatusCode(), 200);
         assertEquals(responseGet.getStatusCode(), 404);
