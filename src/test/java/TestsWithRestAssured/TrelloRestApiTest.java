@@ -12,6 +12,7 @@ import java.util.Properties;
 
 import  static  io.restassured.RestAssured.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.testng.Assert.assertEquals;
 
 public class TrelloRestApiTest {
 
@@ -61,6 +62,7 @@ public class TrelloRestApiTest {
         BoardForTests boardFromResponse = response.as(BoardForTests.class);
         idListOfCreatedBoards.add(boardFromResponse.getId());
 
+        assertEquals(response.getStatusCode(), 200);
         assertThat(boardFromResponse).usingRecursiveComparison()
                 .comparingOnlyFields("name", "closed", "desc")
                 .isEqualTo(boardToCreate);
@@ -94,12 +96,13 @@ public class TrelloRestApiTest {
         BoardForTests boardFromResponse = response.as(BoardForTests.class);
         idListOfCreatedBoards.add(boardFromResponse.getId());
 
+        assertEquals(response.getStatusCode(), 200);
         assertThat(boardFromResponse).usingRecursiveComparison()
                 .isEqualTo(createdBoard);
     }
 
     @Test
-    public void updateBoard() {
+    public void updateBoardTest() {
         BoardForTests boardToCreate = new BoardForTests();
         boardToCreate.setName("NewBoard");
         boardToCreate.setClosed(false);
@@ -126,8 +129,44 @@ public class TrelloRestApiTest {
         BoardForTests changedBoard = response.as(BoardForTests.class);
         idListOfCreatedBoards.add(id);
 
+        assertEquals(response.getStatusCode(), 200);
         assertThat(changedBoard).hasFieldOrPropertyWithValue("name", "ChangedBoard")
                 .hasFieldOrPropertyWithValue("desc", "This board has been changed!")
                 .hasFieldOrPropertyWithValue("id", id);
+    }
+
+    @Test
+    public void deleteBoard(){
+        BoardForTests boardToCreate = new BoardForTests();
+        boardToCreate.setName("NewBoard");
+        boardToCreate.setClosed(false);
+        boardToCreate.setDesc("This is new board!");
+
+        BoardForTests createdBoard = given().contentType("application/json")
+                .body(boardToCreate)
+                .when()
+                .post(keyAndToken)
+                .then().log().body()
+                .extract().response()
+                .as(BoardForTests.class);
+
+        String id = createdBoard.getId();
+
+        Response responseDelete = given().contentType("application/json")
+                .when()
+                .delete(id + keyAndToken)
+                .then().log().body()
+                .extract().response();
+
+        Response responseGet = given().contentType("application/json")
+                .when()
+                .get(id + keyAndToken)
+                .then().log().body()
+                .extract().response();
+
+        BoardForTests deletedBoard = responseDelete.as(BoardForTests.class);
+
+        assertEquals(responseDelete.getStatusCode(), 200);
+        assertEquals(responseGet.getStatusCode(), 404);
     }
 }
