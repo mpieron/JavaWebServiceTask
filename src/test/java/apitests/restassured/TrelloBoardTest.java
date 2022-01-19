@@ -1,4 +1,4 @@
-package TestsWithRestAssured;
+package apitests.restassured;
 
 import io.restassured.response.Response;
 import org.testng.annotations.AfterClass;
@@ -14,7 +14,7 @@ import  static  io.restassured.RestAssured.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.testng.Assert.assertEquals;
 
-public class TrelloRestApiTest {
+public class TrelloBoardTest {
 
     String key;
     String token;
@@ -153,7 +153,7 @@ public class TrelloRestApiTest {
     }
 
     @Test
-    public void deleteBoard(){
+    public void deleteBoardTest(){
         BoardForTests boardToCreate = new BoardForTests();
         boardToCreate.setName("NewBoard");
         boardToCreate.setClosed(false);
