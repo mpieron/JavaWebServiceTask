@@ -1,4 +1,4 @@
-package TestsWithHttpClient;
+package apitests.httpclient;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -20,7 +20,7 @@ import java.util.Properties;
 import static org.testng.Assert.assertEquals;
 import static org.assertj.core.api.Assertions.*;
 
-public class TrelloRestApiTest {
+public class TrelloBoardTest {
 
     CloseableHttpClient client;
     URI baseURI;
