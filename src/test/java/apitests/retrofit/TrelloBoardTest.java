@@ -71,9 +71,8 @@ public class TrelloBoardTest {
         Response<BoardForTests> response = callSync.execute();
         BoardForTests createdBoard = response.body();
 
-        if (createdBoard != null) {
-            idListOfCreatedBoards.add(createdBoard.getId());
-        }
+        assertThat(createdBoard).isNotNull();
+        idListOfCreatedBoards.add(createdBoard.getId());
 
         assertEquals(response.code(), 200);
         assertThat(createdBoard).hasFieldOrPropertyWithValue("name", "NewBoard")
@@ -95,19 +94,18 @@ public class TrelloBoardTest {
         Response<BoardForTests> responsePost = callSyncPost.execute();
         BoardForTests createdBoard = responsePost.body();
 
-        if (createdBoard != null) {
-            idListOfCreatedBoards.add(createdBoard.getId());
+        assertThat(createdBoard).isNotNull();
+        idListOfCreatedBoards.add(createdBoard.getId());
 
-            Call<BoardForTests> callSyncGet = service.getBoard(createdBoard.getId(), key, token);
-            Response<BoardForTests> responseGet = callSyncGet.execute();
-            BoardForTests receivedBoard = responseGet.body();
+        Call<BoardForTests> callSyncGet = service.getBoard(createdBoard.getId(), key, token);
+        Response<BoardForTests> responseGet = callSyncGet.execute();
+        BoardForTests receivedBoard = responseGet.body();
 
-            assertEquals(responseGet.code(), 200);
-            assertThat(receivedBoard).hasFieldOrPropertyWithValue("id", createdBoard.getId())
-                    .hasFieldOrPropertyWithValue("name", "NewBoard")
-                    .hasFieldOrPropertyWithValue("desc", "This is new board!")
-                    .hasFieldOrPropertyWithValue("closed", false);
-            }
+        assertEquals(responseGet.code(), 200);
+        assertThat(receivedBoard).hasFieldOrPropertyWithValue("id", createdBoard.getId())
+                .hasFieldOrPropertyWithValue("name", "NewBoard")
+                .hasFieldOrPropertyWithValue("desc", "This is new board!")
+                .hasFieldOrPropertyWithValue("closed", false);
     }
 
     @Test
@@ -123,22 +121,21 @@ public class TrelloBoardTest {
         Response<BoardForTests> responsePost = callSyncPost.execute();
         BoardForTests createdBoard = responsePost.body();
 
-        if (createdBoard != null) {
-            idListOfCreatedBoards.add(createdBoard.getId());
-            board.setName("ChangedBoard");
-            board.setDesc("This board has been changed!");
+        assertThat(createdBoard).isNotNull();
+        idListOfCreatedBoards.add(createdBoard.getId());
+        board.setName("ChangedBoard");
+        board.setDesc("This board has been changed!");
 
-            Call<BoardForTests> callSyncPut = service.putBoard(createdBoard.getId(), key, token, board);
+        Call<BoardForTests> callSyncPut = service.putBoard(createdBoard.getId(), key, token, board);
 
-            Response<BoardForTests> responsePut = callSyncPut.execute();
-            BoardForTests updatedBoard = responsePut.body();
+        Response<BoardForTests> responsePut = callSyncPut.execute();
+        BoardForTests updatedBoard = responsePut.body();
 
-            assertEquals(responsePut.code(), 200);
-            assertThat(updatedBoard).hasFieldOrPropertyWithValue("id", createdBoard.getId())
-                    .hasFieldOrPropertyWithValue("name", "ChangedBoard")
-                    .hasFieldOrPropertyWithValue("desc", "This board has been changed!")
-                    .hasFieldOrPropertyWithValue("closed", false);
-        }
+        assertEquals(responsePut.code(), 200);
+        assertThat(updatedBoard).hasFieldOrPropertyWithValue("id", createdBoard.getId())
+                .hasFieldOrPropertyWithValue("name", "ChangedBoard")
+                .hasFieldOrPropertyWithValue("desc", "This board has been changed!")
+                .hasFieldOrPropertyWithValue("closed", false);
     }
 
     @Test
@@ -154,15 +151,14 @@ public class TrelloBoardTest {
         Response<BoardForTests> responsePost = callSyncPost.execute();
         BoardForTests createdBoard = responsePost.body();
 
-        if (createdBoard != null) {
-            Call<BoardForTests> callSyncDelete = service.deleteBoard(createdBoard.getId(), key, token);
-            Response<BoardForTests> responseDelete = callSyncDelete.execute();
+        assertThat(createdBoard).isNotNull();
+        Call<BoardForTests> callSyncDelete = service.deleteBoard(createdBoard.getId(), key, token);
+        Response<BoardForTests> responseDelete = callSyncDelete.execute();
 
-            Call<BoardForTests> callSyncGet = service.getBoard(createdBoard.getId(), key, token);
-            Response<BoardForTests> responseGet = callSyncGet.execute();
+        Call<BoardForTests> callSyncGet = service.getBoard(createdBoard.getId(), key, token);
+        Response<BoardForTests> responseGet = callSyncGet.execute();
 
-            assertEquals(responseDelete.code(), 200);
-            assertEquals(responseGet.code(), 404);
-        }
+        assertEquals(responseDelete.code(), 200);
+        assertEquals(responseGet.code(), 404);
     }
 }
